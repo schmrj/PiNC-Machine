@@ -135,10 +135,10 @@ public class RPiIO extends PIIO {
 
         if (input != null) {
             input.addListener(listener);
-            MyLog.info("Listener added to input: " + pin.getName());
+//            MyLog.info("Listener added to input: " + pin.getName());
         }
         else {
-        	MyLog.error("Could not find input, listener not added");
+//        	MyLog.error("Could not find input, listener not added");
         }
     }
     

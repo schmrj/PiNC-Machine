@@ -1,14 +1,13 @@
 package com.pincmachine.core.rpi.piio;
 
-import java.io.IOException;
-import java.util.TreeMap;
-
 import com.pi4j.io.gpio.GpioPinDigitalMultipurpose;
 import com.pi4j.io.gpio.Pin;
 import com.pi4j.io.gpio.PinMode;
 import com.pi4j.io.gpio.PinState;
 import com.pi4j.io.gpio.event.GpioPinListenerDigital;
-import org.apache.log4j.Logger;
+
+import java.io.IOException;
+import java.util.TreeMap;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -22,7 +21,7 @@ import org.apache.log4j.Logger;
  */
 public abstract class PIIO {
 
-    public static final Logger MyLog = Logger.getLogger("PIIO");
+//    public static final Logger MyLog = Logger.getLogger("PIIO");
     protected TreeMap<String, PinOut> pins = new TreeMap<String, PinOut>();
 
     public PIIO() {

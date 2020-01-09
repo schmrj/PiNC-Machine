@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.pincmachine</groupId>
-    <artifactId>PiNC Machine</artifactId>
+    <artifactId>PiNCMachine</artifactId>
     <version>0.1-SNAPSHOT</version>
     <modules>
         <module>pinc-core</module>
@@ -17,6 +17,14 @@
         <pi4j.version>1.2</pi4j.version>
         <jUnit.version>4.11</jUnit.version>
         <log.version>1.2.14</log.version>
+
+        <maven.plugin.version>3.1</maven.plugin.version>
+        <jackson.version>2.9.4</jackson.version>
+        <java.version>1.8</java.version>
+        <jaxrs.version>2.0.1</jaxrs.version>
+
+        <spring-boot-version>1.5.3.RELEASE</spring-boot-version>
+        <spring-security-oauth-version>2.0.9.RELEASE</spring-security-oauth-version>
     </properties>
 
     <dependencyManagement>
@@ -37,11 +45,6 @@
                 <version>${jUnit.version}</version>
             </dependency>
             <dependency>
-                <groupId>log4j</groupId>
-                <artifactId>log4j</artifactId>
-                <version>${log.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.turtle</groupId>
                 <artifactId>turtle-gfx</artifactId>
                 <version>1.0</version>
@@ -51,6 +54,48 @@
                 <artifactId>breezy</artifactId>
                 <version>1.0</version>
             </dependency>
+
+            <!-- Spring Dependencies -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-parent</artifactId>
+                <version>${spring-boot-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>1.5.3.RELEASE</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context</artifactId>
+                <version>4.3.10.RELEASE</version>
+            </dependency>
+
+            <!-- BEGIN Jackson Dependencies -->
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.ws.rs</groupId>
+                <artifactId>javax.ws.rs-api</artifactId>
+                <version>${jaxrs.version}</version>
+            </dependency>
+            <!-- END Jackson Dependencies -->
         </dependencies>
     </dependencyManagement>
 
@@ -65,6 +110,11 @@
                         <source>1.8</source>
                         <target>1.8</target>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <version>${spring-boot-version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>

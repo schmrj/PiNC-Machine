@@ -72,10 +72,10 @@ public class MockIO extends PIIO {
 		MockOutput output = outputs.get(name);
 
 		if (output != null) {
-			MyLog.debug(name + " state: " + state.getName());
+//			MyLog.debug(name + " state: " + state.getName());
 			output.setState(state);
 		} else {
-			MyLog.error("Could not find output: " + name);
+//			MyLog.error("Could not find output: " + name);
 		}
 	}
 
@@ -109,9 +109,9 @@ public class MockIO extends PIIO {
 		MockInput input = inputs.get(pin.getName());
 
 		if (input != null) {
-			MyLog.info("Listener added to input: " + pin.getName());
+//			MyLog.info("Listener added to input: " + pin.getName());
 		} else {
-			MyLog.error("Could not find input, listener not added");
+//			MyLog.error("Could not find input, listener not added");
 		}
 	}
 
@@ -123,7 +123,7 @@ public class MockIO extends PIIO {
 	@Override
 	public Double readAnalogInput(String pinName) {
 		// TODO Auto-generated method stub
-		MyLog.debug("ANALOG INPUT, MOCK RETURN: 512");
+//		MyLog.debug("ANALOG INPUT, MOCK RETURN: 512");
 		return 512.0;
 	}
 

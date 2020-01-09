@@ -1,0 +1,11 @@
+laser:
+  workspace:
+    x-size: 2438
+    y-size: 1219
+  motor-config:
+    x-pin: 21
+    x-pin-dir: 22
+    x-pin-endstop: 20
+    y-pin: 24
+    y-pin-dir: 25
+    y-pin-endstop: 21
