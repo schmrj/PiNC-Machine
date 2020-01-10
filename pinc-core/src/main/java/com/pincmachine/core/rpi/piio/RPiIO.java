@@ -145,4 +145,11 @@ public class RPiIO extends PIIO {
     public GpioPinDigitalMultipurpose provision(Pin pin, PinMode mode){
     	return gpio.provisionDigitalMultipurposePin(pin, mode);
     }
+
+    @Override
+    public boolean hasPin(String pinName) {
+        if(this.inputs.containsKey(pinName) || this.outputs.containsKey(pinName))
+            return true;
+        return false;
+    }
 }

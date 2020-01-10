@@ -132,4 +132,11 @@ public class MockIO extends PIIO {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public boolean hasPin(String pinName) {
+		if(this.inputs.containsKey(pinName) || this.outputs.containsKey(pinName))
+			return true;
+		return false;
+	}
 }

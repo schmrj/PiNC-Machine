@@ -8,7 +8,8 @@ import java.util.Scanner;
 
 public class PiNCLaserControl implements MachineControl {
 
-    GCodeInterpreter interpreter = new GCodeInterpreter();
+    @Autowired
+    GCodeInterpreter interpreter;
 
     @Autowired
     LaserConfig config;
@@ -21,7 +22,11 @@ public class PiNCLaserControl implements MachineControl {
             System.out.print("Enter machine command (G-Code): ");
             String command = scan.nextLine();
 
-            interpreter.interpret(command);
+            try {
+                interpreter.interpret(command);
+            }catch(Exception e){
+                e.printStackTrace();
+            }
         }while(true);
     }
 }

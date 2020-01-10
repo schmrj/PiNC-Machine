@@ -53,4 +53,6 @@ public abstract class PIIO {
     public abstract Double readAnalogInput(PinOut pin);
     
     public abstract GpioPinDigitalMultipurpose provision(Pin pin, PinMode mode);
+
+    public abstract boolean hasPin(String pinName);
 }
