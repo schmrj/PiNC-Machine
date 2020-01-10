@@ -148,7 +148,11 @@ public class GCodeInterpreter {
         Axis xAxis = null;
         Axis yAxis = null;
 
-        if (this.instructedX != null) {
+        if (this.instructedX == null)
+            this.instructedX = this.currentX;
+        if(this.instructedY == null)
+            this.instructedY = this.currentY;
+
             // Build X Axis
             xAxis = AxisBuilder.setAxisPin(this.xAxisPin)
                     .setDirectionPin(this.xAxisDirection)
@@ -158,31 +162,22 @@ public class GCodeInterpreter {
                     .setMove(this.instructedX)
                     .setFeedRate(null)
                     .build();
+            xAxis.setPiio(this.piio);
 
             xAxis.start();
-        }
 
-        if (instructedY != null) {
-            // Build Y Axis
-            yAxis = AxisBuilder.setAxisPin(this.yAxisPin)
-                    .setDirectionPin(this.yAxisDirection)
-                    .setEndStopPin(this.yEndStopPinOut)
-                    .setBarrier(barrier)
-                    .setCurrentPosition(this.currentY)
-                    .setMove(this.instructedY)
-                    .setFeedRate(null)
-                    .build();
+        // Build Y Axis
+        yAxis = AxisBuilder.setAxisPin(this.yAxisPin)
+                .setDirectionPin(this.yAxisDirection)
+                .setEndStopPin(this.yEndStopPinOut)
+                .setBarrier(barrier)
+                .setCurrentPosition(this.currentY)
+                .setMove(this.instructedY)
+                .setFeedRate(null)
+                .build();
+        yAxis.setPiio(this.piio);
 
-            yAxis.start();
-        }
-
-        if (barrier.getNumberWaiting() == 1) {
-            try {
-                barrier.await();
-            } catch (InterruptedException | BrokenBarrierException e) {
-                e.printStackTrace();
-            }
-        }
+        yAxis.start();
 
         boolean complete = false;
         do {

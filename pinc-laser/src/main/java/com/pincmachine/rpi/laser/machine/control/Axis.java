@@ -26,6 +26,9 @@ public class Axis extends Thread {
         try {
             this.barrier.await();
 
+            for(int i = 0; i < 10; i++){
+
+            }
 
 
             this.complete = true;
@@ -37,10 +40,6 @@ public class Axis extends Thread {
 
     public boolean isComplete() {
         return complete;
-    }
-
-    public void setComplete(boolean complete) {
-        this.complete = complete;
     }
 
     public Integer getCurrentPosition() {
