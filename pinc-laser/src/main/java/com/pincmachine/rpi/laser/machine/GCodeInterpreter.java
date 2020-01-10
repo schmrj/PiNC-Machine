@@ -10,6 +10,7 @@ import com.pincmachine.rpi.laser.machine.control.Axis;
 import com.pincmachine.rpi.laser.machine.control.AxisBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 
 public class GCodeInterpreter {
@@ -26,9 +27,9 @@ public class GCodeInterpreter {
     private PinOut yAxisDirection = null;
 
     private Integer currentX = 0;
-    private Integer instructedX = 0;
+    private Integer instructedX = null;
     private Integer currentY = 0;
-    private Integer instructedY = 0;
+    private Integer instructedY = null;
     private PinOut yEndStopPinOut;
     private PinOut xEndStopPinOut;
 
@@ -94,6 +95,7 @@ public class GCodeInterpreter {
                     case 'F':
                         break;
                     case 'G':
+                        this.gCode(command);
                         break;
                     default:
                         break;
@@ -103,6 +105,24 @@ public class GCodeInterpreter {
 
         if (commands != null && commands.length > 0) {
             this.execute();
+        }
+    }
+
+    private void gCode(String command) {
+        String value = command.substring(1);
+        Integer gValue = Integer.parseInt(value);
+
+        // TODO Setup G Code Commands
+
+        switch (gValue) {
+            case 28:
+                System.out.println("AUTO HOME ALL AXIS");
+                this.currentY = (laserConfig.getWorkspace().getySize() / 2) * -1;
+                this.currentX = (laserConfig.getWorkspace().getxSize() / 2) * -1;
+                break;
+            default:
+                System.out.println("Not Implemented");
+                break;
         }
     }
 
@@ -125,29 +145,62 @@ public class GCodeInterpreter {
     private void execute() {
         CyclicBarrier barrier = new CyclicBarrier(2);
 
-        // Build X Axis
-        Axis xAxis = AxisBuilder.setAxisPin(this.xAxisPin)
-                .setDirectionPin(this.xAxisDirection)
-                .setEndStopPin(this.xEndStopPinOut)
-                .setBarrier(barrier)
-                .setCurrentPosition(null)
-                .setMove(null)
-                .setFeedRate(null)
-                .build();
+        Axis xAxis = null;
+        Axis yAxis = null;
 
-        // Build Y Axis
-        Axis yAxis = AxisBuilder.setAxisPin(this.yAxisPin)
-                .setDirectionPin(this.yAxisDirection)
-                .setEndStopPin(this.yEndStopPinOut)
-                .setBarrier(barrier)
-                .setCurrentPosition(null)
-                .setMove(null)
-                .setFeedRate(null)
-                .build();
+        if (this.instructedX != null) {
+            // Build X Axis
+            xAxis = AxisBuilder.setAxisPin(this.xAxisPin)
+                    .setDirectionPin(this.xAxisDirection)
+                    .setEndStopPin(this.xEndStopPinOut)
+                    .setBarrier(barrier)
+                    .setCurrentPosition(this.currentX)
+                    .setMove(this.instructedX)
+                    .setFeedRate(null)
+                    .build();
 
+            xAxis.start();
+        }
 
+        if (instructedY != null) {
+            // Build Y Axis
+            yAxis = AxisBuilder.setAxisPin(this.yAxisPin)
+                    .setDirectionPin(this.yAxisDirection)
+                    .setEndStopPin(this.yEndStopPinOut)
+                    .setBarrier(barrier)
+                    .setCurrentPosition(this.currentY)
+                    .setMove(this.instructedY)
+                    .setFeedRate(null)
+                    .build();
+
+            yAxis.start();
+        }
+
+        if (barrier.getNumberWaiting() == 1) {
+            try {
+                barrier.await();
+            } catch (InterruptedException | BrokenBarrierException e) {
+                e.printStackTrace();
+            }
+        }
+
+        boolean complete = false;
+        do {
+            if ((xAxis != null && !xAxis.isComplete()) || (yAxis != null && !yAxis.isComplete())) {
+                complete = false;
+            } else
+                complete = true;
+        } while (!complete);
         // Finished with the execution
-        this.currentX = this.instructedX;
-        this.currentY = this.instructedY;
+
+        if (xAxis != null) {
+            this.currentX = this.instructedX;
+            this.instructedX = null;
+        }
+
+        if (yAxis != null) {
+            this.currentY = this.instructedY;
+            this.instructedY = null;
+        }
     }
 }

@@ -110,7 +110,23 @@ public class AxisBuilder {
         @Override
         public Axis build() {
 
+//            private PinState direction = null;
+//
+//            private CyclicBarrier barrier = null;
+//
+//            private Integer currentPosition = null;
+//            private Integer instructedPosition = null;
+//            private Integer feedRate = null;
+
+
             Axis axis = new Axis();
+            axis.setAxisPin(this.axisPin);
+            axis.setDirectionPin(this.directionPin);
+            axis.setEndStopPin(this.endStop);
+            axis.setBarrier(this.barrier);
+            axis.setCurrentPosition(this.currentPosition);
+            axis.setInstructedPosition(this.instructedPosition);
+            axis.setFeedRate(this.feedRate);
 
 
             return axis;
