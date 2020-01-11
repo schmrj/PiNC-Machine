@@ -1,7 +1,7 @@
 package com.pincmachine.rpi.laser.machine.control;
 
-import com.pi4j.io.gpio.Pin;
 import com.pi4j.io.gpio.PinState;
+import com.pincmachine.core.rpi.piio.PIIO;
 import com.pincmachine.core.rpi.piio.PinOut;
 
 import java.util.concurrent.CyclicBarrier;
@@ -12,12 +12,12 @@ public class AxisBuilder {
 
     }
 
-    public static SetDirectionPin setAxisPin(PinOut axisPin) {
-        return new Builder().setAxisPin(axisPin);
+    public static SetDirectionPin setAxisPin(PinOut axisPin, PIIO piio, Integer axisLength) {
+        return new Builder().setAxisPin(axisPin, piio, axisLength);
     }
 
     public static interface SetAxisPin {
-        SetDirectionPin setAxisPin(PinOut axisPin);
+        SetDirectionPin setAxisPin(PinOut axisPin, PIIO piio, Integer axisLength);
     }
 
     public static interface SetDirectionPin {
@@ -55,6 +55,7 @@ public class AxisBuilder {
     static class Builder implements SetAxisPin, SetDirectionPin, SetEndStopPin, SetBarrier, SetCurrentPosition
                                     ,SetMove, SetFeedRate, Build {
         private PinOut axisPin = null;
+        private PIIO piio = null;
         private PinOut directionPin = null;
         private PinOut endStop = null;
         private PinState direction = null;
@@ -64,9 +65,12 @@ public class AxisBuilder {
         private Integer currentPosition = null;
         private Integer instructedPosition = null;
         private Integer feedRate = null;
+        private Integer axisLength = null;
 
-        public SetDirectionPin setAxisPin(PinOut axisPin) {
+        public SetDirectionPin setAxisPin(PinOut axisPin, PIIO piio, Integer axisLength) {
+            this.piio = piio;
             this.axisPin = axisPin;
+            this.axisLength = axisLength;
             return this;
         }
 
@@ -110,15 +114,6 @@ public class AxisBuilder {
         @Override
         public Axis build() {
 
-//            private PinState direction = null;
-//
-//            private CyclicBarrier barrier = null;
-//
-//            private Integer currentPosition = null;
-//            private Integer instructedPosition = null;
-//            private Integer feedRate = null;
-
-
             Axis axis = new Axis();
             axis.setAxisPin(this.axisPin);
             axis.setDirectionPin(this.directionPin);
@@ -127,7 +122,8 @@ public class AxisBuilder {
             axis.setCurrentPosition(this.currentPosition);
             axis.setInstructedPosition(this.instructedPosition);
             axis.setFeedRate(this.feedRate);
-
+            axis.setPiio(this.piio);
+            axis.setAxisLength(this.axisLength);
 
             return axis;
         }

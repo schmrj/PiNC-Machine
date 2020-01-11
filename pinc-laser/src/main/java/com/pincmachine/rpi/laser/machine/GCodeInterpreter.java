@@ -142,6 +142,18 @@ public class GCodeInterpreter {
         this.instructedY = yValue;
     }
 
+    private Integer getDistance(Integer start, Integer end) {
+
+        if (start != null && end != null) {
+            Integer diff = start - end;
+            if(diff < 0)
+                diff = diff * -1;
+
+            return diff;
+        }
+        return null;
+    }
+
     private void execute() {
         CyclicBarrier barrier = new CyclicBarrier(2);
 
@@ -150,32 +162,35 @@ public class GCodeInterpreter {
 
         if (this.instructedX == null)
             this.instructedX = this.currentX;
-        if(this.instructedY == null)
+        if (this.instructedY == null)
             this.instructedY = this.currentY;
 
-            // Build X Axis
-            xAxis = AxisBuilder.setAxisPin(this.xAxisPin)
-                    .setDirectionPin(this.xAxisDirection)
-                    .setEndStopPin(this.xEndStopPinOut)
-                    .setBarrier(barrier)
-                    .setCurrentPosition(this.currentX)
-                    .setMove(this.instructedX)
-                    .setFeedRate(null)
-                    .build();
-            xAxis.setPiio(this.piio);
+        Integer xDistance = this.getDistance(this.currentX, this.instructedX);
+        Integer yDistance = this.getDistance(this.currentY, this.instructedY);
+        Integer feedRateX = 10;
+        Integer feedRateY = 10;
 
-            xAxis.start();
+        // Build X Axis
+        xAxis = AxisBuilder.setAxisPin(this.xAxisPin, this.piio, this.laserConfig.getWorkspace().getxSize())
+                .setDirectionPin(this.xAxisDirection)
+                .setEndStopPin(this.xEndStopPinOut)
+                .setBarrier(barrier)
+                .setCurrentPosition(this.currentX)
+                .setMove(this.instructedX)
+                .setFeedRate(feedRateX)
+                .build();
+
+        xAxis.start();
 
         // Build Y Axis
-        yAxis = AxisBuilder.setAxisPin(this.yAxisPin)
+        yAxis = AxisBuilder.setAxisPin(this.yAxisPin, this.piio, this.laserConfig.getWorkspace().getySize())
                 .setDirectionPin(this.yAxisDirection)
                 .setEndStopPin(this.yEndStopPinOut)
                 .setBarrier(barrier)
                 .setCurrentPosition(this.currentY)
                 .setMove(this.instructedY)
-                .setFeedRate(null)
+                .setFeedRate(feedRateY)
                 .build();
-        yAxis.setPiio(this.piio);
 
         yAxis.start();
 
@@ -185,6 +200,12 @@ public class GCodeInterpreter {
                 complete = false;
             } else
                 complete = true;
+
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         } while (!complete);
         // Finished with the execution
 

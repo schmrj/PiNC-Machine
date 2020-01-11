@@ -3,6 +3,9 @@ package com.pincmachine.rpi.laser.machine.control;
 import com.pi4j.io.gpio.PinState;
 import com.pincmachine.core.rpi.piio.PIIO;
 import com.pincmachine.core.rpi.piio.PinOut;
+import com.pincmachine.rpi.laser.machine.config.LaserConfig;
+import com.pincmachine.rpi.laser.machine.config.MotorConfig;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
@@ -12,6 +15,7 @@ public class Axis extends Thread {
     private boolean complete = false;
     private CyclicBarrier barrier = null;
 
+    private Integer axisLength = null;
     private Integer currentPosition;
     private Integer instructedPosition;
     private PIIO piio;
@@ -21,20 +25,66 @@ public class Axis extends Thread {
     private PinState direction = null;
     private Integer feedRate = null;
 
+    private Integer calculateDistance() {
+        Integer distance = this.currentPosition - this.instructedPosition;
+        if (distance < 0) {
+            distance = distance * -1;
+        }
+
+        if(currentPosition < this.instructedPosition){
+            this.direction = MotorConfig.CLOCKWISE;
+        }else{
+            this.direction = MotorConfig.COUNTER_CLOCKWISE;
+        }
+        return distance;
+    }
 
     public void run() {
         try {
+            this.direction = MotorConfig.CLOCKWISE;
+            Integer distance = this.calculateDistance();
             this.barrier.await();
 
-            for(int i = 0; i < 10; i++){
+            for (int i = 0; i < distance; i++) {
+                this.piio.setState(this.direction, this.directionPin);
 
+                Integer nextPosition = null;
+                if (this.direction == PinState.HIGH) {
+                    nextPosition = this.currentPosition + i;
+                }else{
+                    nextPosition = this.currentPosition - i;
+                }
+
+                if (!this.checkEndStop(nextPosition)) {
+                    this.piio.setState(PinState.HIGH, this.axisPin);
+                    long startTime = System.nanoTime();
+                    Long end = null;
+                    do {
+                        end = System.nanoTime();
+                    } while (startTime + this.feedRate > end);
+                    this.piio.setState(PinState.LOW, this.axisPin);
+                }
             }
-
 
             this.complete = true;
         } catch (InterruptedException | BrokenBarrierException e) {
             e.printStackTrace();
         }
+    }
+
+    private boolean checkEndStop(Integer nextPosition) {
+        boolean blockMove = false;
+
+        PinState state = this.piio.getState(this.endStopPin);
+        if (state == PinState.HIGH)
+            blockMove = true;
+
+        Integer diff = this.axisLength / 2;
+        if(nextPosition >= (diff * -1) && nextPosition <= (diff))
+            blockMove = false;
+
+
+        return blockMove;
     }
 
 
@@ -112,5 +162,13 @@ public class Axis extends Thread {
 
     public void setFeedRate(Integer feedRate) {
         this.feedRate = feedRate;
+    }
+
+    public Integer getAxisLength() {
+        return axisLength;
+    }
+
+    public void setAxisLength(Integer axisLength) {
+        this.axisLength = axisLength;
     }
 }

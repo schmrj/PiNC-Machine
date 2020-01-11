@@ -1,5 +1,6 @@
 package com.pincmachine.rpi.laser.machine.config;
 
+import com.pi4j.io.gpio.PinState;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -12,6 +13,9 @@ public class MotorConfig {
     private int yPin;
     private int yPinDir;
     private int yPinEndstop;
+
+    public static PinState CLOCKWISE = PinState.HIGH;
+    public static PinState COUNTER_CLOCKWISE = PinState.LOW;
 
     public int getxPin() {
         return xPin;
