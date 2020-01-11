@@ -65,6 +65,7 @@
                 <configuration>
                     <executable>true</executable>
                     <finalName>PiNCLaser-${parent.version}</finalName>
+                    <mainClass>com.pincmachine.rpi.laser.PiNCLaser</mainClass>
                 </configuration>
                 <executions>
                     <execution>

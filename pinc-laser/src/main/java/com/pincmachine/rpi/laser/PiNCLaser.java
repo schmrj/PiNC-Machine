@@ -3,6 +3,7 @@ package com.pincmachine.rpi.laser;
 import com.pincmachine.core.rpi.machine.MachineControl;
 import com.pincmachine.core.rpi.piio.MockIO;
 import com.pincmachine.core.rpi.piio.PIIO;
+import com.pincmachine.core.rpi.piio.RPiIO;
 import com.pincmachine.rpi.laser.machine.GCodeInterpreter;
 import com.pincmachine.rpi.laser.machine.PiNCLaserControl;
 import com.pincmachine.rpi.laser.machine.config.LaserConfig;
@@ -36,7 +37,7 @@ public class PiNCLaser implements CommandLineRunner {
 
     @Bean
     public PIIO getPIIO(){
-        return new MockIO();
+        return new RPiIO();
     }
 
     @Override

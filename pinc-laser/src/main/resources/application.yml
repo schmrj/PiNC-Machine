@@ -5,7 +5,7 @@ laser:
   motor-config:
     x-pin: 21
     x-pin-dir: 22
-    x-pin-endstop: 20
+    x-pin-endstop: 2
     y-pin: 24
     y-pin-dir: 25
-    y-pin-endstop: 21
+    y-pin-endstop: 26

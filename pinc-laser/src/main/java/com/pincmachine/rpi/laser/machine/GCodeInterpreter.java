@@ -32,6 +32,7 @@ public class GCodeInterpreter {
     private Integer instructedY = null;
     private PinOut yEndStopPinOut;
     private PinOut xEndStopPinOut;
+    private Integer feedRate = null;
 
     public void init() throws Exception {
 
@@ -93,6 +94,7 @@ public class GCodeInterpreter {
                         this.yCode(command);
                         break;
                     case 'F':
+                        this.fCode(command);
                         break;
                     case 'G':
                         this.gCode(command);
@@ -134,6 +136,14 @@ public class GCodeInterpreter {
         this.instructedX = xValue;
     }
 
+    private void fCode(String command) {
+        String value = command.substring(1);
+        Integer feed = Integer.parseInt(value);
+
+        System.out.println("Setting FeedRate to: " + feed);
+        this.feedRate = feed;
+    }
+
     private void yCode(String command) {
         String value = command.substring(1);
         Integer yValue = Integer.parseInt(value);
@@ -167,8 +177,8 @@ public class GCodeInterpreter {
 
         Integer xDistance = this.getDistance(this.currentX, this.instructedX);
         Integer yDistance = this.getDistance(this.currentY, this.instructedY);
-        Integer feedRateX = 10;
-        Integer feedRateY = 10;
+        Integer feedRateX = this.feedRate;
+        Integer feedRateY = this.feedRate;
 
         // Build X Axis
         xAxis = AxisBuilder.setAxisPin(this.xAxisPin, this.piio, this.laserConfig.getWorkspace().getxSize())

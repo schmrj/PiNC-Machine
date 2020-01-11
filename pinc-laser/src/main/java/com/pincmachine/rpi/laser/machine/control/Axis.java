@@ -18,6 +18,7 @@ public class Axis extends Thread {
     private Integer axisLength = null;
     private Integer currentPosition;
     private Integer instructedPosition;
+    private Integer finalDestination = null;
     private PIIO piio;
     private PinOut axisPin;
     private PinOut directionPin = null;
@@ -63,6 +64,7 @@ public class Axis extends Thread {
                         end = System.nanoTime();
                     } while (startTime + this.feedRate > end);
                     this.piio.setState(PinState.LOW, this.axisPin);
+                    this.finalDestination = nextPosition;
                 }
             }
 
@@ -80,8 +82,8 @@ public class Axis extends Thread {
             blockMove = true;
 
         Integer diff = this.axisLength / 2;
-        if(nextPosition >= (diff * -1) && nextPosition <= (diff))
-            blockMove = false;
+        if(nextPosition <= (diff * -1) || nextPosition >= (diff))
+            blockMove = true;
 
 
         return blockMove;
@@ -170,5 +172,9 @@ public class Axis extends Thread {
 
     public void setAxisLength(Integer axisLength) {
         this.axisLength = axisLength;
+    }
+
+    public Integer getFinalDestination() {
+        return finalDestination;
     }
 }
