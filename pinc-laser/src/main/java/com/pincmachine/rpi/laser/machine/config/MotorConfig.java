@@ -14,8 +14,8 @@ public class MotorConfig {
     private int yPinDir;
     private int yPinEndstop;
 
-    public static PinState CLOCKWISE = PinState.HIGH;
-    public static PinState COUNTER_CLOCKWISE = PinState.LOW;
+    public static PinState CLOCKWISE = PinState.LOW;
+    public static PinState COUNTER_CLOCKWISE = PinState.HIGH;
 
     public int getxPin() {
         return xPin;

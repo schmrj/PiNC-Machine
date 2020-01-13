@@ -10,7 +10,6 @@ import com.pincmachine.rpi.laser.machine.control.Axis;
 import com.pincmachine.rpi.laser.machine.control.AxisBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 
 public class GCodeInterpreter {
@@ -32,7 +31,7 @@ public class GCodeInterpreter {
     private Integer instructedY = null;
     private PinOut yEndStopPinOut;
     private PinOut xEndStopPinOut;
-    private Integer feedRate = null;
+    private Integer feedRate = 1000000;
 
     public void init() throws Exception {
 
@@ -119,6 +118,7 @@ public class GCodeInterpreter {
         switch (gValue) {
             case 28:
                 System.out.println("AUTO HOME ALL AXIS");
+                this.homeAxis(this.xAxisPin, this.xAxisDirection, this.xEndStopPinOut, this.piio);
                 this.currentY = (laserConfig.getWorkspace().getySize() / 2) * -1;
                 this.currentX = (laserConfig.getWorkspace().getxSize() / 2) * -1;
                 break;
@@ -126,6 +126,33 @@ public class GCodeInterpreter {
                 System.out.println("Not Implemented");
                 break;
         }
+    }
+
+    private void homeAxis(PinOut axisPin, PinOut directionPin, PinOut endstop, PIIO piio){
+        CyclicBarrier barrier = new CyclicBarrier(1);
+        boolean cont = true;
+        Integer position = 0;
+        do {
+            Axis axis = AxisBuilder.setAxisPin(axisPin, piio, 2000000)
+                    .setDirectionPin(directionPin)
+                    .setEndStopPin(endstop)
+                    .setBarrier(barrier)
+                    .setCurrentPosition(0)
+                    .setMove(-2000000)
+                    .setFeedRate(this.feedRate)
+                    .build();
+            axis.start();
+
+            while(!axis.isComplete()){
+
+            }
+
+            if(axis.checkEndStop(position, false)) {
+                cont = false;
+                break;
+            }
+
+        }while(cont);
     }
 
     private void xCode(String command) {
