@@ -25,7 +25,11 @@ public class AxisBuilder {
     }
 
     public static interface SetEndStopPin{
-        SetBarrier setEndStopPin(PinOut endStopPin);
+        SetIgnoreLimits setEndStopPin(PinOut endStopPin);
+    }
+
+    public static interface SetIgnoreLimits{
+        SetBarrier setIgnoreLimits(boolean ignoreLimits);
     }
 
     public static interface SetBarrier{
@@ -53,7 +57,7 @@ public class AxisBuilder {
     }
 
     static class Builder implements SetAxisPin, SetDirectionPin, SetEndStopPin, SetBarrier, SetCurrentPosition
-                                    ,SetMove, SetFeedRate, Build {
+                                    ,SetMove, SetFeedRate, SetIgnoreLimits, Build {
         private PinOut axisPin = null;
         private PIIO piio = null;
         private PinOut directionPin = null;
@@ -66,6 +70,7 @@ public class AxisBuilder {
         private Integer instructedPosition = null;
         private Integer feedRate = null;
         private Integer axisLength = null;
+        private boolean ignoreLimits;
 
         public SetDirectionPin setAxisPin(PinOut axisPin, PIIO piio, Integer axisLength) {
             this.piio = piio;
@@ -81,8 +86,14 @@ public class AxisBuilder {
         }
 
         @Override
-        public SetBarrier setEndStopPin(PinOut endStopPin) {
+        public SetIgnoreLimits setEndStopPin(PinOut endStopPin) {
             this.endStop = endStopPin;
+            return this;
+        }
+
+
+        public SetBarrier setIgnoreLimits(boolean ignoreLimits){
+            this.ignoreLimits = ignoreLimits;
             return this;
         }
 
@@ -124,6 +135,7 @@ public class AxisBuilder {
             axis.setFeedRate(this.feedRate);
             axis.setPiio(this.piio);
             axis.setAxisLength(this.axisLength);
+            axis.setIgnoreLimits(this.ignoreLimits);
 
             return axis;
         }

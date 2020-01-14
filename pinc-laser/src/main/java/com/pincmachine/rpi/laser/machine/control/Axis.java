@@ -55,7 +55,7 @@ public class Axis extends Thread {
                     nextPosition = this.currentPosition - i;
                 }
 
-                if (!this.checkEndStop(nextPosition, this.ignoreLimits)) {
+                if (!this.checkEndStop(nextPosition)) {
                     this.piio.setState(PinState.HIGH, this.axisPin);
                     long startTime = System.nanoTime();
                     Long end = null;
@@ -79,14 +79,14 @@ public class Axis extends Thread {
 
 
 
-    public boolean checkEndStop(Integer nextPosition, boolean ignoreLimits) {
+    public boolean checkEndStop(Integer nextPosition) {
         boolean blockMove = false;
 
         PinState state = this.piio.getState(this.endStopPin);
         if (state == PinState.HIGH)
             blockMove = true;
 
-        if (!ignoreLimits) {
+        if (!this.ignoreLimits) {
             Integer diff = this.axisLength / 2;
             if (nextPosition <= (diff * -1) || nextPosition >= (diff))
                 blockMove = true;

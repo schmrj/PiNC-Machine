@@ -118,9 +118,15 @@ public class GCodeInterpreter {
         switch (gValue) {
             case 28:
                 System.out.println("AUTO HOME ALL AXIS");
-                this.homeAxis(this.xAxisPin, this.xAxisDirection, this.xEndStopPinOut, this.piio);
+                int x_min = this.homeAxis(this.xAxisPin, this.xAxisDirection, this.xEndStopPinOut, this.piio, (Integer.MIN_VALUE + 1), true);
+                this.homeAxis(this.xAxisPin, this.xAxisDirection, this.xEndStopPinOut, this.piio, (x_min + 10), false);
+                int x_max = this.homeAxis(this.xAxisPin, this.xAxisDirection, this.xEndStopPinOut, this.piio, Integer.MAX_VALUE, true);
+                System.out.println("Found X Step Count: " + x_max);
+                this.laserConfig.getWorkspace().setxSize(x_max);
+
                 this.currentY = (laserConfig.getWorkspace().getySize() / 2) * -1;
-                this.currentX = (laserConfig.getWorkspace().getxSize() / 2) * -1;
+                this.currentX = (laserConfig.getWorkspace().getxSize() / 2);
+                System.out.println("Setting curent position to: " + this.currentX);
                 break;
             default:
                 System.out.println("Not Implemented");
@@ -128,31 +134,28 @@ public class GCodeInterpreter {
         }
     }
 
-    private void homeAxis(PinOut axisPin, PinOut directionPin, PinOut endstop, PIIO piio){
+    private Integer homeAxis(PinOut axisPin, PinOut directionPin, PinOut endstop, PIIO piio, Integer targetDestination, boolean ignoreEndStop) {
         CyclicBarrier barrier = new CyclicBarrier(1);
-        boolean cont = true;
-        Integer position = 0;
-        do {
-            Axis axis = AxisBuilder.setAxisPin(axisPin, piio, 2000000)
-                    .setDirectionPin(directionPin)
-                    .setEndStopPin(endstop)
-                    .setBarrier(barrier)
-                    .setCurrentPosition(0)
-                    .setMove(-2000000)
-                    .setFeedRate(this.feedRate)
-                    .build();
-            axis.start();
+        Axis axis = AxisBuilder.setAxisPin(axisPin, piio, targetDestination)
+                .setDirectionPin(directionPin)
+                .setEndStopPin(endstop)
+                .setIgnoreLimits(ignoreEndStop)
+                .setBarrier(barrier)
+                .setCurrentPosition(0)
+                .setMove(targetDestination)
+                .setFeedRate(this.feedRate)
+                .build();
+        axis.start();
 
-            while(!axis.isComplete()){
-
+        while (!axis.isComplete()) {
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
+        }
 
-            if(axis.checkEndStop(position, false)) {
-                cont = false;
-                break;
-            }
-
-        }while(cont);
+        return axis.getFinalDestination();
     }
 
     private void xCode(String command) {
@@ -183,7 +186,7 @@ public class GCodeInterpreter {
 
         if (start != null && end != null) {
             Integer diff = start - end;
-            if(diff < 0)
+            if (diff < 0)
                 diff = diff * -1;
 
             return diff;
@@ -211,6 +214,7 @@ public class GCodeInterpreter {
         xAxis = AxisBuilder.setAxisPin(this.xAxisPin, this.piio, this.laserConfig.getWorkspace().getxSize())
                 .setDirectionPin(this.xAxisDirection)
                 .setEndStopPin(this.xEndStopPinOut)
+                .setIgnoreLimits(false)
                 .setBarrier(barrier)
                 .setCurrentPosition(this.currentX)
                 .setMove(this.instructedX)
@@ -223,6 +227,7 @@ public class GCodeInterpreter {
         yAxis = AxisBuilder.setAxisPin(this.yAxisPin, this.piio, this.laserConfig.getWorkspace().getySize())
                 .setDirectionPin(this.yAxisDirection)
                 .setEndStopPin(this.yEndStopPinOut)
+                .setIgnoreLimits(false)
                 .setBarrier(barrier)
                 .setCurrentPosition(this.currentY)
                 .setMove(this.instructedY)
