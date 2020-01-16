@@ -118,15 +118,7 @@ public class GCodeInterpreter {
         switch (gValue) {
             case 28:
                 System.out.println("AUTO HOME ALL AXIS");
-                int x_min = this.homeAxis(this.xAxisPin, this.xAxisDirection, this.xEndStopPinOut, this.piio, (Integer.MIN_VALUE + 1), true);
-                this.homeAxis(this.xAxisPin, this.xAxisDirection, this.xEndStopPinOut, this.piio, (x_min + 10), false);
-                int x_max = this.homeAxis(this.xAxisPin, this.xAxisDirection, this.xEndStopPinOut, this.piio, Integer.MAX_VALUE, true);
-                System.out.println("Found X Step Count: " + x_max);
-                this.laserConfig.getWorkspace().setxSize(x_max);
-
-                this.currentY = (laserConfig.getWorkspace().getySize() / 2) * -1;
-                this.currentX = (laserConfig.getWorkspace().getxSize() / 2);
-                System.out.println("Setting curent position to: " + this.currentX);
+                this.findRailLimits();
                 break;
             default:
                 System.out.println("Not Implemented");
@@ -134,9 +126,26 @@ public class GCodeInterpreter {
         }
     }
 
+    private void findRailLimits(){
+        // Find the endstop
+        this.homeAxis(this.xAxisPin, this.xAxisDirection, this.xEndStopPinOut, this.piio, (Integer.MIN_VALUE + 1), false);
+
+        // Add buffer of 10 steps
+        this.homeAxis(this.xAxisPin, this.xAxisDirection, this.xEndStopPinOut, this.piio, 100, true);
+
+        // Find Opposite Endstop
+        int length = this.homeAxis(this.xAxisPin, this.xAxisDirection, this.xEndStopPinOut, this.piio, Integer.MAX_VALUE - 1, false);
+        this.laserConfig.getWorkspace().setxSize(length);
+        // Move to Center
+
+        this.homeAxis(this.xAxisPin, this.xAxisDirection, this.xEndStopPinOut, this.piio, ((length / 2) * -1), true);
+
+        // Move to beginning
+    }
+
     private Integer homeAxis(PinOut axisPin, PinOut directionPin, PinOut endstop, PIIO piio, Integer targetDestination, boolean ignoreEndStop) {
         CyclicBarrier barrier = new CyclicBarrier(1);
-        Axis axis = AxisBuilder.setAxisPin(axisPin, piio, targetDestination)
+        Axis axis = AxisBuilder.setAxisPin(axisPin, piio, Integer.MAX_VALUE)
                 .setDirectionPin(directionPin)
                 .setEndStopPin(endstop)
                 .setIgnoreLimits(ignoreEndStop)

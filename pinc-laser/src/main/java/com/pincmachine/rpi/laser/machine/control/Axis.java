@@ -25,6 +25,8 @@ public class Axis extends Thread {
     private PinState direction = null;
     private Integer feedRate = null;
 
+    private boolean atEndstop = false;
+
     private Integer calculateDistance() {
         Integer distance = this.currentPosition - this.instructedPosition;
         if (distance < 0) {
@@ -41,6 +43,7 @@ public class Axis extends Thread {
 
     public void run() {
         try {
+
             this.direction = MotorConfig.CLOCKWISE;
             Integer distance = this.calculateDistance();
             this.barrier.await();
@@ -64,10 +67,13 @@ public class Axis extends Thread {
                     } while (startTime + this.feedRate > end);
                     this.piio.setState(PinState.LOW, this.axisPin);
                     this.finalDestination = nextPosition;
-                }else{
+                } else {
                     break;
                 }
             }
+
+            if(this.finalDestination == null)
+                this.finalDestination = this.currentPosition;
 
             System.out.println("Instructed Position: " + this.instructedPosition + ", Reached Position: " + this.finalDestination);
 
@@ -78,19 +84,22 @@ public class Axis extends Thread {
     }
 
 
-
     public boolean checkEndStop(Integer nextPosition) {
         boolean blockMove = false;
 
         PinState state = this.piio.getState(this.endStopPin);
+
+        if(state == PinState.HIGH && this.ignoreLimits == true)
+            return false;
+
         if (state == PinState.HIGH)
             blockMove = true;
 
-        if (!this.ignoreLimits) {
-            Integer diff = this.axisLength / 2;
-            if (nextPosition <= (diff * -1) || nextPosition >= (diff))
-                blockMove = true;
-        }
+//        if (!this.ignoreLimits) {
+//            Integer diff = this.axisLength / 2;
+//            if (nextPosition <= (diff * -1) || nextPosition >= (diff))
+//                blockMove = true;
+//        }
 
 
         return blockMove;
