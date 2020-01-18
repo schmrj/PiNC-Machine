@@ -89,17 +89,18 @@ public class Axis extends Thread {
 
         PinState state = this.piio.getState(this.endStopPin);
 
-        if(state == PinState.HIGH && this.ignoreLimits == true)
+        if(state == PinState.HIGH && this.ignoreLimits)
             return false;
 
         if (state == PinState.HIGH)
             blockMove = true;
 
-//        if (!this.ignoreLimits) {
-//            Integer diff = this.axisLength / 2;
-//            if (nextPosition <= (diff * -1) || nextPosition >= (diff))
-//                blockMove = true;
-//        }
+        if (!this.ignoreLimits) {
+            System.out.println("Axis Length: " + this.axisLength);
+            Integer diff = this.axisLength / 2;
+            if (nextPosition < (diff * -1) || nextPosition > (diff))
+                blockMove = true;
+        }
 
 
         return blockMove;

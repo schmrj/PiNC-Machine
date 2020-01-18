@@ -10,6 +10,7 @@ import com.pincmachine.rpi.laser.machine.control.Axis;
 import com.pincmachine.rpi.laser.machine.control.AxisBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 
 public class GCodeInterpreter {
@@ -126,21 +127,62 @@ public class GCodeInterpreter {
         }
     }
 
-    private void findRailLimits(){
-        // Find the endstop
-        this.homeAxis(this.xAxisPin, this.xAxisDirection, this.xEndStopPinOut, this.piio, (Integer.MIN_VALUE + 1), false);
+    private void findRailLimits() {
+        CyclicBarrier barrier2 = new CyclicBarrier(1);
+        Thread xHome = new Thread() {
 
-        // Add buffer of 10 steps
-        this.homeAxis(this.xAxisPin, this.xAxisDirection, this.xEndStopPinOut, this.piio, 100, true);
+            public void run() {
+                try {
+                    barrier2.await();
 
-        // Find Opposite Endstop
-        int length = this.homeAxis(this.xAxisPin, this.xAxisDirection, this.xEndStopPinOut, this.piio, Integer.MAX_VALUE - 1, false);
-        this.laserConfig.getWorkspace().setxSize(length);
-        // Move to Center
+                    // Find the endstop
+                    homeAxis(xAxisPin, xAxisDirection, xEndStopPinOut, piio, (Integer.MIN_VALUE + 1), false);
+                    // Add buffer of 10 steps
+                    homeAxis(xAxisPin, xAxisDirection, xEndStopPinOut, piio, 100, true);
 
-        this.homeAxis(this.xAxisPin, this.xAxisDirection, this.xEndStopPinOut, this.piio, ((length / 2) * -1), true);
+                    // Find Opposite Endstop
+                    int length = homeAxis(xAxisPin, xAxisDirection, xEndStopPinOut, piio, Integer.MAX_VALUE - 1, false);
+                    laserConfig.getWorkspace().setxSize(length + 50);
+                    // Move to Center
+                    homeAxis(xAxisPin, xAxisDirection, xEndStopPinOut, piio, (((length + 50)) * -1), true);
+                    // Move to beginning
 
-        // Move to beginning
+                    currentX = ((length + 50) / 2) * -1;
+                    System.out.println("Max X Axis Steps: " + (length / 2));
+                } catch (InterruptedException | BrokenBarrierException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        Thread yHome = new Thread() {
+            public void run() {
+                try {
+                    barrier2.await();
+                    // Find the endstop
+                    homeAxis(yAxisPin, yAxisDirection, yEndStopPinOut, piio, (Integer.MIN_VALUE + 1), false);
+                    // Add buffer of 10 steps
+                    homeAxis(yAxisPin, yAxisDirection, yEndStopPinOut, piio, 100, true);
+
+                    // Find Opposite Endstop
+                    int length = homeAxis(yAxisPin, yAxisDirection, yEndStopPinOut, piio, Integer.MAX_VALUE - 1, false);
+                    laserConfig.getWorkspace().setySize(length + 50);
+                    // Move to Center
+                    homeAxis(yAxisPin, yAxisDirection, yEndStopPinOut, piio, (((length + 50)) * -1), true);
+                    // Move to beginning
+
+                    System.out.println("Max Y Axis Steps: " + (length / 2));
+
+                    currentY = ((length + 50) / 2) * -1;
+                } catch (InterruptedException | BrokenBarrierException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+//        yHome.start();
+        xHome.start();
+
     }
 
     private Integer homeAxis(PinOut axisPin, PinOut directionPin, PinOut endstop, PIIO piio, Integer targetDestination, boolean ignoreEndStop) {
