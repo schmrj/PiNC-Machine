@@ -14,6 +14,14 @@ public class MotorConfig {
     private int yPinDir;
     private int yPinEndstop;
 
+    private String stepMode;
+    private int stepM0Pin;
+    private int stepM1Pin;
+    private int stepM2Pin;
+
+    private String stepDistanceUnit;
+    private double stepResolution;
+
     public static PinState CLOCKWISE = PinState.LOW;
     public static PinState COUNTER_CLOCKWISE = PinState.HIGH;
 
@@ -63,5 +71,53 @@ public class MotorConfig {
 
     public void setyPinEndstop(int yPinEndstop) {
         this.yPinEndstop = yPinEndstop;
+    }
+
+    public String getStepMode() {
+        return stepMode;
+    }
+
+    public void setStepMode(String stepMode) {
+        this.stepMode = stepMode;
+    }
+
+    public int getStepM0Pin() {
+        return stepM0Pin;
+    }
+
+    public void setStepM0Pin(int stepM0Pin) {
+        this.stepM0Pin = stepM0Pin;
+    }
+
+    public int getStepM1Pin() {
+        return stepM1Pin;
+    }
+
+    public void setStepM1Pin(int stepM1Pin) {
+        this.stepM1Pin = stepM1Pin;
+    }
+
+    public int getStepM2Pin() {
+        return stepM2Pin;
+    }
+
+    public void setStepM2Pin(int stepM2Pin) {
+        this.stepM2Pin = stepM2Pin;
+    }
+
+    public String getStepDistanceUnit() {
+        return stepDistanceUnit;
+    }
+
+    public void setStepDistanceUnit(String stepDistanceUnit) {
+        this.stepDistanceUnit = stepDistanceUnit;
+    }
+
+    public double getStepResolution() {
+        return stepResolution;
+    }
+
+    public void setStepResolution(double stepResolution) {
+        this.stepResolution = stepResolution;
     }
 }

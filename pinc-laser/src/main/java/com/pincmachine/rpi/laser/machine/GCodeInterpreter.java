@@ -3,6 +3,8 @@ package com.pincmachine.rpi.laser.machine;
 import com.pi4j.io.gpio.Pin;
 import com.pi4j.io.gpio.PinState;
 import com.pi4j.io.gpio.RaspiPin;
+import com.pincmachine.core.rpi.machine.controllers.DRV8825;
+import com.pincmachine.core.rpi.machine.controllers.DRV8825.ModeOption;
 import com.pincmachine.core.rpi.piio.PIIO;
 import com.pincmachine.core.rpi.piio.PinOut;
 import com.pincmachine.rpi.laser.machine.config.LaserConfig;
@@ -33,6 +35,10 @@ public class GCodeInterpreter {
     private PinOut yEndStopPinOut;
     private PinOut xEndStopPinOut;
     private Integer feedRate = 1000000;
+
+    private PinOut stepModeM0 = null;
+    private PinOut stepModeM1 = null;
+    private PinOut stepModeM2 = null;
 
     public void init() throws Exception {
 
@@ -71,6 +77,41 @@ public class GCodeInterpreter {
             this.yEndStopPinOut = new PinOut("Y-EndStop-Pin", yEndStopPin, PinState.LOW, PinState.LOW);
             this.piio.addInput(yEndStopPinOut, false);
         }
+
+        if (!this.piio.hasPin("STEP-MODE-0")) {
+            Pin stepPinM0 = RaspiPin.getPinByName("GPIO " + this.laserConfig.getMotorConfig().getStepM0Pin());
+            this.stepModeM0 = new PinOut("STEP-MODE-0", stepPinM0, PinState.LOW, PinState.LOW);
+            this.piio.addOutput(stepModeM0);
+        }
+
+        if (!this.piio.hasPin("STEP-MODE-1")) {
+            Pin stepPinM1 = RaspiPin.getPinByName("GPIO " + this.laserConfig.getMotorConfig().getStepM1Pin());
+            this.stepModeM1 = new PinOut("STEP-MODE-1", stepPinM1, PinState.LOW, PinState.LOW);
+            this.piio.addOutput(stepModeM1);
+        }
+
+        if (!this.piio.hasPin("STEP-MODE-2")) {
+            Pin stepPinM2 = RaspiPin.getPinByName("GPIO " + this.laserConfig.getMotorConfig().getStepM2Pin());
+            this.stepModeM2 = new PinOut("STEP-MODE-2", stepPinM2, PinState.LOW, PinState.LOW);
+            this.piio.addOutput(stepModeM2);
+        }
+
+        this.setMode();
+    }
+
+    public void setMode(){
+        String sMode = this.laserConfig.getMotorConfig().getStepMode();
+        ModeOption mode = DRV8825.getMode(sMode);
+        System.out.println("Selecting Mode: " + mode.getModeName());
+
+        // Set M0
+        this.piio.setState(mode.getM0(), this.stepModeM0);
+
+        // Set M1
+        this.piio.setState(mode.getM1(), this.stepModeM1);
+
+        // Set M2
+        this.piio.setState(mode.getM2(), this.stepModeM2);
     }
 
     public void interpret(String command) throws Exception {

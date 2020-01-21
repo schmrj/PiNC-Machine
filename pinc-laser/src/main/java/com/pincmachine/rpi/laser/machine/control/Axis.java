@@ -106,7 +106,6 @@ public class Axis extends Thread {
         return blockMove;
     }
 
-
     public boolean isComplete() {
         return complete;
     }
