@@ -14,21 +14,21 @@ public class Axis extends Thread {
     private boolean ignoreLimits = false;
     private CyclicBarrier barrier = null;
 
-    private Integer axisLength = null;
-    private Integer currentPosition;
-    private Integer instructedPosition;
-    private Integer finalDestination = null;
+    private Double axisLength = null;
+    private Double currentPosition;
+    private Double instructedPosition;
+    private Double finalDestination = null;
     private PIIO piio;
     private PinOut axisPin;
     private PinOut directionPin = null;
     private PinOut endStopPin = null;
     private PinState direction = null;
-    private Integer feedRate = null;
+    private Double feedRate = null;
 
     private boolean atEndstop = false;
 
-    private Integer calculateDistance() {
-        Integer distance = this.currentPosition - this.instructedPosition;
+    private Double calculateDistance() {
+        Double distance = this.currentPosition - this.instructedPosition;
         if (distance < 0) {
             distance = distance * -1;
         }
@@ -45,13 +45,13 @@ public class Axis extends Thread {
         try {
 
             this.direction = MotorConfig.CLOCKWISE;
-            Integer distance = this.calculateDistance();
+            Double distance = this.calculateDistance();
             this.barrier.await();
 
             for (int i = 0; i < distance; i++) {
                 this.piio.setState(this.direction, this.directionPin);
 
-                Integer nextPosition = null;
+                Double nextPosition = null;
                 if (this.direction == MotorConfig.CLOCKWISE) {
                     nextPosition = this.currentPosition + i;
                 } else {
@@ -84,7 +84,7 @@ public class Axis extends Thread {
     }
 
 
-    public boolean checkEndStop(Integer nextPosition) {
+    public boolean checkEndStop(Double nextPosition) {
         boolean blockMove = false;
 
         PinState state = this.piio.getState(this.endStopPin);
@@ -97,8 +97,8 @@ public class Axis extends Thread {
 
         if (!this.ignoreLimits) {
             System.out.println("Axis Length: " + this.axisLength);
-            Integer diff = this.axisLength / 2;
-            if (nextPosition < (diff * -1) || nextPosition > (diff))
+            Double diff = this.axisLength / 2.0;
+            if (nextPosition < (diff * -1.0) || nextPosition > (diff))
                 blockMove = true;
         }
 
@@ -110,19 +110,19 @@ public class Axis extends Thread {
         return complete;
     }
 
-    public Integer getCurrentPosition() {
+    public Double getCurrentPosition() {
         return currentPosition;
     }
 
-    public void setCurrentPosition(Integer currentPosition) {
+    public void setCurrentPosition(Double currentPosition) {
         this.currentPosition = currentPosition;
     }
 
-    public Integer getInstructedPosition() {
+    public Double getInstructedPosition() {
         return instructedPosition;
     }
 
-    public void setInstructedPosition(Integer instructedPosition) {
+    public void setInstructedPosition(Double instructedPosition) {
         this.instructedPosition = instructedPosition;
     }
 
@@ -174,23 +174,23 @@ public class Axis extends Thread {
         this.barrier = barrier;
     }
 
-    public Integer getFeedRate() {
+    public Double getFeedRate() {
         return feedRate;
     }
 
-    public void setFeedRate(Integer feedRate) {
+    public void setFeedRate(Double feedRate) {
         this.feedRate = feedRate;
     }
 
-    public Integer getAxisLength() {
+    public Double getAxisLength() {
         return axisLength;
     }
 
-    public void setAxisLength(Integer axisLength) {
+    public void setAxisLength(Double axisLength) {
         this.axisLength = axisLength;
     }
 
-    public Integer getFinalDestination() {
+    public Double getFinalDestination() {
         return finalDestination;
     }
 

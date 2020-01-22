@@ -37,7 +37,7 @@ public class PiNCLaser implements CommandLineRunner {
 
     @Bean
     public PIIO getPIIO(){
-        return new RPiIO();
+        return new MockIO();
     }
 
     @Override

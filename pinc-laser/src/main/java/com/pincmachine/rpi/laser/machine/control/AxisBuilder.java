@@ -12,12 +12,12 @@ public class AxisBuilder {
 
     }
 
-    public static SetDirectionPin setAxisPin(PinOut axisPin, PIIO piio, Integer axisLength) {
+    public static SetDirectionPin setAxisPin(PinOut axisPin, PIIO piio, Double axisLength) {
         return new Builder().setAxisPin(axisPin, piio, axisLength);
     }
 
     public static interface SetAxisPin {
-        SetDirectionPin setAxisPin(PinOut axisPin, PIIO piio, Integer axisLength);
+        SetDirectionPin setAxisPin(PinOut axisPin, PIIO piio, Double axisLength);
     }
 
     public static interface SetDirectionPin {
@@ -41,15 +41,15 @@ public class AxisBuilder {
 //    }
 
     public static interface SetCurrentPosition{
-        SetMove setCurrentPosition(Integer currentStep);
+        SetMove setCurrentPosition(Double currentStep);
     }
 
     public static interface SetMove{
-        SetFeedRate setMove(Integer newPosition);
+        SetFeedRate setMove(Double newPosition);
     }
 
     public static interface SetFeedRate{
-        Build setFeedRate(Integer feedRate);
+        Build setFeedRate(Double feedRate);
     }
 
     public static interface Build{
@@ -66,13 +66,13 @@ public class AxisBuilder {
 
         private CyclicBarrier barrier = null;
 
-        private Integer currentPosition = null;
-        private Integer instructedPosition = null;
-        private Integer feedRate = null;
-        private Integer axisLength = null;
+        private Double currentPosition = null;
+        private Double instructedPosition = null;
+        private Double feedRate = null;
+        private Double axisLength = null;
         private boolean ignoreLimits;
 
-        public SetDirectionPin setAxisPin(PinOut axisPin, PIIO piio, Integer axisLength) {
+        public SetDirectionPin setAxisPin(PinOut axisPin, PIIO piio, Double axisLength) {
             this.piio = piio;
             this.axisPin = axisPin;
             this.axisLength = axisLength;
@@ -106,18 +106,18 @@ public class AxisBuilder {
 
 
         @Override
-        public SetMove setCurrentPosition(Integer currentStep) {
+        public SetMove setCurrentPosition(Double currentStep) {
             this.currentPosition = currentStep;
             return this;
         }
 
         @Override
-        public SetFeedRate setMove(Integer newPosition) {
+        public SetFeedRate setMove(Double newPosition) {
             this.instructedPosition = newPosition;
             return this;
         }
 
-        public Build setFeedRate(Integer feedRate){
+        public Build setFeedRate(Double feedRate){
             this.feedRate = feedRate;
             return this;
         }

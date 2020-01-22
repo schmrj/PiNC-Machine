@@ -28,13 +28,13 @@ public class GCodeInterpreter {
     private PinOut xAxisDirection = null;
     private PinOut yAxisDirection = null;
 
-    private Integer currentX = 0;
-    private Integer instructedX = null;
-    private Integer currentY = 0;
-    private Integer instructedY = null;
+    private Double currentX = 0.0;
+    private Double instructedX = null;
+    private Double currentY = 0.0;
+    private Double instructedY = null;
     private PinOut yEndStopPinOut;
     private PinOut xEndStopPinOut;
-    private Integer feedRate = 1000000;
+    private Double feedRate = 1000000.0;
 
     private PinOut stepModeM0 = null;
     private PinOut stepModeM1 = null;
@@ -158,6 +158,14 @@ public class GCodeInterpreter {
         // TODO Setup G Code Commands
 
         switch (gValue) {
+            case 20:
+                System.out.println("Setting units to: INCHES");
+                this.laserConfig.getMotorConfig().setStepDistanceUnit("inches");
+                break;
+            case 21:
+                System.out.println("Setting units to: MM");
+                this.laserConfig.getMotorConfig().setStepDistanceUnit("mm");
+                break;
             case 28:
                 System.out.println("AUTO HOME ALL AXIS");
                 this.findRailLimits();
@@ -177,18 +185,18 @@ public class GCodeInterpreter {
                     barrier2.await();
 
                     // Find the endstop
-                    homeAxis(xAxisPin, xAxisDirection, xEndStopPinOut, piio, (Integer.MIN_VALUE + 1), false);
+                    homeAxis(xAxisPin, xAxisDirection, xEndStopPinOut, piio, (Integer.MIN_VALUE + 1.0), false);
                     // Add buffer of 10 steps
-                    homeAxis(xAxisPin, xAxisDirection, xEndStopPinOut, piio, 100, true);
+                    homeAxis(xAxisPin, xAxisDirection, xEndStopPinOut, piio, 100.0, true);
 
                     // Find Opposite Endstop
-                    int length = homeAxis(xAxisPin, xAxisDirection, xEndStopPinOut, piio, Integer.MAX_VALUE - 1, false);
-                    laserConfig.getWorkspace().setxSize(length + 50);
+                    Double length = homeAxis(xAxisPin, xAxisDirection, xEndStopPinOut, piio, Integer.MAX_VALUE - 1.0, false);
+                    laserConfig.getWorkspace().setxSize(length + 50.0);
                     // Move to Center
-                    homeAxis(xAxisPin, xAxisDirection, xEndStopPinOut, piio, (((length + 50)) * -1), true);
+                    homeAxis(xAxisPin, xAxisDirection, xEndStopPinOut, piio, (length * -1.0), true);
                     // Move to beginning
 
-                    currentX = ((length + 50) / 2) * -1;
+                    currentX = (length / 2.0) * -1.0;
                     System.out.println("Max X Axis Steps: " + (length / 2));
                 } catch (InterruptedException | BrokenBarrierException e) {
                     e.printStackTrace();
@@ -201,20 +209,20 @@ public class GCodeInterpreter {
                 try {
                     barrier2.await();
                     // Find the endstop
-                    homeAxis(yAxisPin, yAxisDirection, yEndStopPinOut, piio, (Integer.MIN_VALUE + 1), false);
+                    homeAxis(yAxisPin, yAxisDirection, yEndStopPinOut, piio, (Integer.MIN_VALUE + 1.0), false);
                     // Add buffer of 10 steps
-                    homeAxis(yAxisPin, yAxisDirection, yEndStopPinOut, piio, 100, true);
+                    homeAxis(yAxisPin, yAxisDirection, yEndStopPinOut, piio, 100.0, true);
 
                     // Find Opposite Endstop
-                    int length = homeAxis(yAxisPin, yAxisDirection, yEndStopPinOut, piio, Integer.MAX_VALUE - 1, false);
-                    laserConfig.getWorkspace().setySize(length + 50);
+                    Double length = homeAxis(yAxisPin, yAxisDirection, yEndStopPinOut, piio, Integer.MAX_VALUE - 1.0, false);
+                    laserConfig.getWorkspace().setySize(length + 50.0);
                     // Move to Center
-                    homeAxis(yAxisPin, yAxisDirection, yEndStopPinOut, piio, (((length + 50)) * -1), true);
+                    homeAxis(yAxisPin, yAxisDirection, yEndStopPinOut, piio, (length * -1.0), true);
                     // Move to beginning
 
                     System.out.println("Max Y Axis Steps: " + (length / 2));
 
-                    currentY = ((length + 50) / 2) * -1;
+                    currentY = (length / 2.0) * -1.0;
                 } catch (InterruptedException | BrokenBarrierException e) {
                     e.printStackTrace();
                 }
@@ -226,14 +234,14 @@ public class GCodeInterpreter {
 
     }
 
-    private Integer homeAxis(PinOut axisPin, PinOut directionPin, PinOut endstop, PIIO piio, Integer targetDestination, boolean ignoreEndStop) {
+    private Double homeAxis(PinOut axisPin, PinOut directionPin, PinOut endstop, PIIO piio, Double targetDestination, boolean ignoreEndStop) {
         CyclicBarrier barrier = new CyclicBarrier(1);
-        Axis axis = AxisBuilder.setAxisPin(axisPin, piio, Integer.MAX_VALUE)
+        Axis axis = AxisBuilder.setAxisPin(axisPin, piio, Integer.MAX_VALUE * 1.0)
                 .setDirectionPin(directionPin)
                 .setEndStopPin(endstop)
                 .setIgnoreLimits(ignoreEndStop)
                 .setBarrier(barrier)
-                .setCurrentPosition(0)
+                .setCurrentPosition(0.0)
                 .setMove(targetDestination)
                 .setFeedRate(this.feedRate)
                 .build();
@@ -252,7 +260,7 @@ public class GCodeInterpreter {
 
     private void xCode(String command) {
         String value = command.substring(1);
-        Integer xValue = Integer.parseInt(value);
+        Double xValue = Double.parseDouble(value);
 
         System.out.println("Setting X to: " + xValue);
         this.instructedX = xValue;
@@ -260,7 +268,7 @@ public class GCodeInterpreter {
 
     private void fCode(String command) {
         String value = command.substring(1);
-        Integer feed = Integer.parseInt(value);
+        Double feed = Double.parseDouble(value);
 
         System.out.println("Setting FeedRate to: " + feed);
         this.feedRate = feed;
@@ -268,18 +276,18 @@ public class GCodeInterpreter {
 
     private void yCode(String command) {
         String value = command.substring(1);
-        Integer yValue = Integer.parseInt(value);
+        Double yValue = Double.parseDouble(value);
 
         System.out.println("Setting Y to: " + yValue);
         this.instructedY = yValue;
     }
 
-    private Integer getDistance(Integer start, Integer end) {
+    private Double getDistance(Double start, Double end) {
 
         if (start != null && end != null) {
-            Integer diff = start - end;
+            Double diff = start - end;
             if (diff < 0)
-                diff = diff * -1;
+                diff = diff * -1.0;
 
             return diff;
         }
@@ -297,10 +305,13 @@ public class GCodeInterpreter {
         if (this.instructedY == null)
             this.instructedY = this.currentY;
 
-        Integer xDistance = this.getDistance(this.currentX, this.instructedX);
-        Integer yDistance = this.getDistance(this.currentY, this.instructedY);
-        Integer feedRateX = this.feedRate;
-        Integer feedRateY = this.feedRate;
+        Double xDistance = this.getDistance(this.currentX, this.instructedX);
+        Double yDistance = this.getDistance(this.currentY, this.instructedY);
+
+
+
+        Double feedRateX = this.feedRate;
+        Double feedRateY = this.feedRate;
 
         // Build X Axis
         xAxis = AxisBuilder.setAxisPin(this.xAxisPin, this.piio, this.laserConfig.getWorkspace().getxSize())

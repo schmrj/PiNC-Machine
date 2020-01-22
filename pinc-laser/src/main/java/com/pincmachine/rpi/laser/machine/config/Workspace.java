@@ -5,22 +5,22 @@ import org.springframework.stereotype.Component;
 @Component
 public class Workspace {
 
-    private int xSize;
-    private int ySize;
+    private Double xSize;
+    private Double ySize;
 
-    public int getxSize() {
+    public Double getxSize() {
         return xSize;
     }
 
-    public void setxSize(int xSize) {
+    public void setxSize(Double xSize) {
         this.xSize = xSize;
     }
 
-    public int getySize() {
+    public Double getySize() {
         return ySize;
     }
 
-    public void setySize(int ySize) {
+    public void setySize(Double ySize) {
         this.ySize = ySize;
     }
 }
