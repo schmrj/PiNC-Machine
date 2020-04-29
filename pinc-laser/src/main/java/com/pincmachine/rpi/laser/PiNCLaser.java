@@ -7,6 +7,7 @@ import com.pincmachine.core.rpi.piio.RPiIO;
 import com.pincmachine.rpi.laser.machine.GCodeInterpreter;
 import com.pincmachine.rpi.laser.machine.PiNCLaserControl;
 import com.pincmachine.rpi.laser.machine.config.LaserConfig;
+import com.pincmachine.rpi.laser.machine.control.AxisMath;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -38,6 +39,11 @@ public class PiNCLaser implements CommandLineRunner {
     @Bean
     public PIIO getPIIO(){
         return new MockIO();
+    }
+
+    @Bean
+    public AxisMath getAxisMath(){
+        return new AxisMath();
     }
 
     @Override

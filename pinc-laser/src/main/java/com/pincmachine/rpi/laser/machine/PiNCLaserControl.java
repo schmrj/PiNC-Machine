@@ -17,7 +17,11 @@ public class PiNCLaserControl implements MachineControl {
     @Override
     public void startMachine() {
         Scanner scan = new Scanner(System.in);
-
+        try {
+            interpreter.interpret("G000");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         do {
             System.out.print("Enter machine command (G-Code): ");
             String command = scan.nextLine();

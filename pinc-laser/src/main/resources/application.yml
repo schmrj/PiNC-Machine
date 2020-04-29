@@ -12,7 +12,7 @@ laser:
     y-pin: 24
     y-pin-dir: 25
     y-pin-endstop: 26
-    step-mode: 32ND
+    step-mode: 1
     step-m0-pin: 14
     step-m1-pin: 15
     step-m2-pin: 13

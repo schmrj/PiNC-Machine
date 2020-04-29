@@ -27,12 +27,12 @@ public class DRV8825 {
 
     public enum ModeOption {
 
-        STEP_1("FULL", LOW, LOW, LOW),
-        STEP_2("HALF", HIGH, LOW, LOW),
-        STEP_4("QUARTER", LOW, HIGH, LOW),
-        STEP_8("8TH", HIGH, HIGH, LOW),
-        STEP_16("16TH", LOW, LOW, HIGH),
-        STEP_32("32ND", HIGH, LOW, HIGH);
+        STEP_1("1", LOW, LOW, LOW),
+        STEP_2("2", HIGH, LOW, LOW),
+        STEP_4("4", LOW, HIGH, LOW),
+        STEP_8("8", HIGH, HIGH, LOW),
+        STEP_16("16", LOW, LOW, HIGH),
+        STEP_32("32", HIGH, LOW, HIGH);
 
         private String modeName = null;
         private PinState M0 = null;
