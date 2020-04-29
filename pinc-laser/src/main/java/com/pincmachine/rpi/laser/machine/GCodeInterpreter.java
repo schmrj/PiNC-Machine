@@ -47,63 +47,68 @@ public class GCodeInterpreter {
     private PinOut stepModeM1 = null;
     private PinOut stepModeM2 = null;
 
+    private boolean preInit = true;
+
     public void init() throws Exception {
 
-        if (!this.piio.hasPin("X-Axis")) {
-            Pin xPin = RaspiPin.getPinByName("GPIO " + this.laserConfig.getMotorConfig().getxPin());
-            this.xAxisPin = new PinOut("X-Axis", xPin, PinState.LOW, PinState.LOW);
-            this.piio.addOutput(this.xAxisPin);
-        }
+        if(this.preInit) {
+            if (!this.piio.hasPin("X-Axis")) {
+                Pin xPin = RaspiPin.getPinByName("GPIO " + this.laserConfig.getMotorConfig().getxPin());
+                this.xAxisPin = new PinOut("X-Axis", xPin, PinState.LOW, PinState.LOW);
+                this.piio.addOutput(this.xAxisPin);
+            }
 
-        if (!this.piio.hasPin("Y-Axis")) {
-            Pin yPin = RaspiPin.getPinByName("GPIO " + this.laserConfig.getMotorConfig().getyPin());
-            this.yAxisPin = new PinOut("Y-Axis", yPin, PinState.LOW, PinState.LOW);
-            this.piio.addOutput(this.yAxisPin);
-        }
+            if (!this.piio.hasPin("Y-Axis")) {
+                Pin yPin = RaspiPin.getPinByName("GPIO " + this.laserConfig.getMotorConfig().getyPin());
+                this.yAxisPin = new PinOut("Y-Axis", yPin, PinState.LOW, PinState.LOW);
+                this.piio.addOutput(this.yAxisPin);
+            }
 
-        if (!this.piio.hasPin("X-Dir-Pin")) {
-            Pin xDirectionPin = RaspiPin.getPinByName("GPIO " + this.laserConfig.getMotorConfig().getxPinDir());
-            this.xAxisDirection = new PinOut("X-Dir-Pin", xDirectionPin, PinState.LOW, PinState.LOW);
-            this.piio.addOutput(this.xAxisDirection);
-        }
+            if (!this.piio.hasPin("X-Dir-Pin")) {
+                Pin xDirectionPin = RaspiPin.getPinByName("GPIO " + this.laserConfig.getMotorConfig().getxPinDir());
+                this.xAxisDirection = new PinOut("X-Dir-Pin", xDirectionPin, PinState.LOW, PinState.LOW);
+                this.piio.addOutput(this.xAxisDirection);
+            }
 
-        if (!this.piio.hasPin("Y-Dir-Pin")) {
-            Pin yDirectionPin = RaspiPin.getPinByName("GPIO " + this.laserConfig.getMotorConfig().getyPinDir());
-            this.yAxisDirection = new PinOut("Y-Dir-Pin", yDirectionPin, PinState.LOW, PinState.LOW);
-            this.piio.addOutput(this.yAxisDirection);
-        }
+            if (!this.piio.hasPin("Y-Dir-Pin")) {
+                Pin yDirectionPin = RaspiPin.getPinByName("GPIO " + this.laserConfig.getMotorConfig().getyPinDir());
+                this.yAxisDirection = new PinOut("Y-Dir-Pin", yDirectionPin, PinState.LOW, PinState.LOW);
+                this.piio.addOutput(this.yAxisDirection);
+            }
 
-        if (!this.piio.hasPin("X-EndStop-Pin")) {
-            Pin xEndStopPin = RaspiPin.getPinByName("GPIO " + this.laserConfig.getMotorConfig().getxPinEndstop());
-            this.xEndStopPinOut = new PinOut("X-EndStop-Pin", xEndStopPin, PinState.LOW, PinState.LOW);
-            this.piio.addInput(xEndStopPinOut, false);
-        }
+            if (!this.piio.hasPin("X-EndStop-Pin")) {
+                Pin xEndStopPin = RaspiPin.getPinByName("GPIO " + this.laserConfig.getMotorConfig().getxPinEndstop());
+                this.xEndStopPinOut = new PinOut("X-EndStop-Pin", xEndStopPin, PinState.LOW, PinState.LOW);
+                this.piio.addInput(xEndStopPinOut, false);
+            }
 
-        if (!this.piio.hasPin("Y-EndStop-Pin")) {
-            Pin yEndStopPin = RaspiPin.getPinByName("GPIO " + this.laserConfig.getMotorConfig().getyPinEndstop());
-            this.yEndStopPinOut = new PinOut("Y-EndStop-Pin", yEndStopPin, PinState.LOW, PinState.LOW);
-            this.piio.addInput(yEndStopPinOut, false);
-        }
+            if (!this.piio.hasPin("Y-EndStop-Pin")) {
+                Pin yEndStopPin = RaspiPin.getPinByName("GPIO " + this.laserConfig.getMotorConfig().getyPinEndstop());
+                this.yEndStopPinOut = new PinOut("Y-EndStop-Pin", yEndStopPin, PinState.LOW, PinState.LOW);
+                this.piio.addInput(yEndStopPinOut, false);
+            }
 
-        if (!this.piio.hasPin("STEP-MODE-0")) {
-            Pin stepPinM0 = RaspiPin.getPinByName("GPIO " + this.laserConfig.getMotorConfig().getStepM0Pin());
-            this.stepModeM0 = new PinOut("STEP-MODE-0", stepPinM0, PinState.LOW, PinState.LOW);
-            this.piio.addOutput(stepModeM0);
-        }
+            if (!this.piio.hasPin("STEP-MODE-0")) {
+                Pin stepPinM0 = RaspiPin.getPinByName("GPIO " + this.laserConfig.getMotorConfig().getStepM0Pin());
+                this.stepModeM0 = new PinOut("STEP-MODE-0", stepPinM0, PinState.LOW, PinState.LOW);
+                this.piio.addOutput(stepModeM0);
+            }
 
-        if (!this.piio.hasPin("STEP-MODE-1")) {
-            Pin stepPinM1 = RaspiPin.getPinByName("GPIO " + this.laserConfig.getMotorConfig().getStepM1Pin());
-            this.stepModeM1 = new PinOut("STEP-MODE-1", stepPinM1, PinState.LOW, PinState.LOW);
-            this.piio.addOutput(stepModeM1);
-        }
+            if (!this.piio.hasPin("STEP-MODE-1")) {
+                Pin stepPinM1 = RaspiPin.getPinByName("GPIO " + this.laserConfig.getMotorConfig().getStepM1Pin());
+                this.stepModeM1 = new PinOut("STEP-MODE-1", stepPinM1, PinState.LOW, PinState.LOW);
+                this.piio.addOutput(stepModeM1);
+            }
 
-        if (!this.piio.hasPin("STEP-MODE-2")) {
-            Pin stepPinM2 = RaspiPin.getPinByName("GPIO " + this.laserConfig.getMotorConfig().getStepM2Pin());
-            this.stepModeM2 = new PinOut("STEP-MODE-2", stepPinM2, PinState.LOW, PinState.LOW);
-            this.piio.addOutput(stepModeM2);
-        }
+            if (!this.piio.hasPin("STEP-MODE-2")) {
+                Pin stepPinM2 = RaspiPin.getPinByName("GPIO " + this.laserConfig.getMotorConfig().getStepM2Pin());
+                this.stepModeM2 = new PinOut("STEP-MODE-2", stepPinM2, PinState.LOW, PinState.LOW);
+                this.piio.addOutput(stepModeM2);
+            }
 
-        this.setMode();
+            this.setMode();
+            this.preInit = false;
+        }
     }
 
     public void setMode() {
@@ -147,6 +152,9 @@ public class GCodeInterpreter {
                     case 'G':
                         this.gCode(command);
                         break;
+                    case 'M':
+                        this.mCode(command);
+                        break;
                     default:
                         break;
                 }
@@ -155,6 +163,45 @@ public class GCodeInterpreter {
 
         if (commands != null && commands.length > 0) {
             this.execute();
+        }
+    }
+
+    private void mCode(String command) {
+
+        switch(command){
+            case "M390":
+                this.laserConfig.getMotorConfig().setStepMode("1");
+                this.setMode();
+                // 1:1 Step
+                break;
+            case "M391":
+                //1:2 Step
+                this.laserConfig.getMotorConfig().setStepMode("2");
+                this.setMode();
+                break;
+            case "M392":
+                //1:4 Step
+                this.laserConfig.getMotorConfig().setStepMode("4");
+                this.setMode();
+                break;
+            case "M393":
+                //1:8 Step
+                this.laserConfig.getMotorConfig().setStepMode("8");
+                this.setMode();
+                break;
+            case "M394":
+                //1:16 Step
+                this.laserConfig.getMotorConfig().setStepMode("16");
+                this.setMode();
+                break;
+            case "M395":
+                //1:32 Step
+                this.laserConfig.getMotorConfig().setStepMode("32");
+                this.setMode();
+                break;
+            default:
+                //1:1 Step
+                break;
         }
     }
 
