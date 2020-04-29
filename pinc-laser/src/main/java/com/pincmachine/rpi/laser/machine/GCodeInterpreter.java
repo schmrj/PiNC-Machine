@@ -39,7 +39,9 @@ public class GCodeInterpreter {
     private Double instructedY = null;
     private PinOut yEndStopPinOut;
     private PinOut xEndStopPinOut;
-    private Double feedRate = 1000000.0;
+
+    // Feed rate in Inches Per Minute
+    private Double feedRate = 1.0;
 
     private PinOut stepModeM0 = null;
     private PinOut stepModeM1 = null;
@@ -325,8 +327,10 @@ public class GCodeInterpreter {
         Double xDistance = this.getDistance(this.currentX, this.instructedX);
         Double yDistance = this.getDistance(this.currentY, this.instructedY);
 
-        Double feedRateX = this.feedRate;
-        Double feedRateY = this.feedRate;
+
+
+        Double feedRateX = axisMath.calculateFeedRate(this.feedRate, xDistance);;
+        Double feedRateY = axisMath.calculateFeedRate(this.feedRate, yDistance);;
 
         // Build X Axis
         xAxis = AxisBuilder.setAxisPin(this.xAxisPin, this.piio, this.laserConfig.getWorkspace().getxSize())
